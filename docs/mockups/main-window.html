@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ParamBridge Mockup</title>
+<!--
+  Reference mockup for the WPF main window (docs/07_UI_V2.md).
+  Colours here are the source of truth for UI/Theme/Theme.xaml.
+  Open in any browser; resize ≥ 1200 px wide. Toggle theme with the moon button.
+-->
+<style>
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface2:#F7F9FB; --border:#D5DAE1; --text:#1B2430; --muted:#667085;
+  --accent:#0F7B6C; --accent2:#0C6357; --accentSoft:#DDF1EE;
+  --inst:#E4F4EA; --instLine:#3E9A66; --type:#FFF3D3; --typeLine:#B7841A; --ro:#FBE4E4; --roLine:#C2514E;
+  --miss:#ECEEF2; --sel:#CFE5FA; --selLine:#2F7FD0; --warn:#B26B00; --danger:#B3261E;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+}
+:root[data-theme="dark"]{
+  --bg:#1E232B; --surface:#262C35; --surface2:#2C333D; --border:#3A424E; --text:#E6EAF0; --muted:#98A2B3;
+  --accent:#2FB39F; --accent2:#3CC7B2; --accentSoft:#1F3B38;
+  --inst:#203A2C; --instLine:#5CC48A; --type:#3D3320; --typeLine:#E0B04A; --ro:#3F2627; --roLine:#E07B78;
+  --miss:#30363F; --sel:#1F3550; --selLine:#5AA3EE;
+}
+*{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--text);font:12px/1.35 "Segoe UI",system-ui,sans-serif}
+.win{max-width:1240px;margin:16px auto;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);display:flex;flex-direction:column;height:760px;overflow:hidden}
+/* title bar */
+.title{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--border)}
+.logo{width:26px;height:26px}
+.name{font-size:15px;font-weight:600}.ver{color:var(--muted);font-size:11px;margin-left:4px}
+.spacer{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:14px;padding:3px 10px;color:var(--muted);background:var(--surface2)}
+.prog{width:120px;height:6px;border-radius:3px;background:var(--border);overflow:hidden}.prog>i{display:block;height:100%;width:0;background:var(--accent)}
+select,input[type=search]{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 8px}
+.ib{width:28px;height:28px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);display:inline-grid;place-items:center;cursor:pointer}
+.ib:hover{border-color:var(--accent)}
+/* tabs */
+.tabs{display:flex;gap:2px;padding:8px 12px 0;border-bottom:1px solid var(--border)}
+.tab{padding:7px 14px;border:1px solid transparent;border-bottom:none;border-radius:6px 6px 0 0;color:var(--muted);cursor:pointer;display:flex;gap:6px;align-items:center}
+.tab.on{background:var(--surface);border-color:var(--border);color:var(--text);font-weight:600;position:relative;top:1px;box-shadow:inset 0 2px 0 var(--accent)}
+.star{color:#E0A030}.tab .n{background:var(--accentSoft);color:var(--accent);border-radius:8px;padding:0 6px;font-size:10px;font-weight:600}
+/* toolbar */
+.tool{display:flex;align-items:center;gap:14px;padding:8px 12px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.seg b{padding:4px 12px;font-weight:400;cursor:pointer;border-right:1px solid var(--border)}.seg b:last-child{border:0}
+.seg b.on{background:var(--accentSoft);color:var(--accent);font-weight:600}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;padding:6px 12px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.btn:hover{border-color:var(--accent)} .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.ghost{background:transparent}
+/* body */
+.body{flex:1;display:grid;grid-template-columns:280px 1fr 44px 1fr;gap:8px;padding:0 12px 8px;min-height:0}
+.col{border:1px solid var(--border);border-radius:6px;display:flex;flex-direction:column;min-height:0;background:var(--surface)}
+.colh{display:flex;align-items:center;gap:6px;padding:7px 8px;border-bottom:1px solid var(--border);background:var(--surface2);font-weight:600}
+.colh .c{margin-left:auto;color:var(--muted);font-weight:400}
+.f{display:flex;gap:6px;padding:6px 8px;border-bottom:1px solid var(--border)} .f>*{flex:1;min-width:0}
+.list{overflow:auto;flex:1}
+.row{display:grid;grid-template-columns:18px 1fr auto auto;align-items:center;gap:6px;padding:3px 8px;border-left:3px solid transparent;cursor:default;white-space:nowrap}
+.row .dt{color:var(--muted);font-size:11px}
+.row .cov{font-size:10px;color:var(--muted);min-width:34px;text-align:right}
+.row.inst{background:var(--inst);border-left-color:var(--instLine)}
+.row.type{background:var(--type);border-left-color:var(--typeLine)}
+.row.ro{background:var(--ro);border-left-color:var(--roLine)}
+.row.sel{background:var(--sel)!important;border-left-color:var(--selLine)!important}
+.row+.row{border-top:1px solid rgba(0,0,0,.04)}
+.grp{padding:4px 8px;font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--muted);background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.k{width:14px;height:14px;display:inline-grid;place-items:center}
+.k svg{width:13px;height:13px}
+.tag{font-size:9px;font-weight:700;border-radius:3px;padding:0 4px;border:1px solid currentColor;opacity:.75}
+.cat{display:flex;align-items:center;gap:8px;padding:3px 8px}.cat:hover{background:var(--surface2)}
+.cat .cnt{margin-left:auto;color:var(--muted);font-size:11px}
+.cat input{accent-color:var(--accent)}
+.foot{border-top:1px solid var(--border);padding:6px 8px;display:flex;gap:10px;align-items:center;color:var(--muted)}
+.mid{display:flex;flex-direction:column;justify-content:center;gap:6px;align-items:center}
+.legend{display:flex;gap:6px;padding:6px 8px;border-top:1px solid var(--border)}
+.lg{flex:1;display:flex;gap:6px;align-items:center;justify-content:center;border-radius:5px;padding:4px;border:1px solid transparent;cursor:pointer;user-select:none}
+.lg.inst{background:var(--inst);border-color:var(--instLine)} .lg.type{background:var(--type);border-color:var(--typeLine)} .lg.ro{background:var(--ro);border-color:var(--roLine)}
+.lg.off{opacity:.4;filter:grayscale(1)}
+.order{display:flex;justify-content:center;gap:6px;padding:6px;border-top:1px solid var(--border)}
+/* bottom bar */
+.bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid var(--border);background:var(--surface2)}
+.status{color:var(--muted)} .status b{color:var(--text)}
+.split{display:inline-flex}.split .btn:first-child{border-radius:6px 0 0 6px}.split .btn:last-child{border-radius:0 6px 6px 0;border-left:0;padding:6px 8px}
+.warn{color:var(--warn)}
+.detail{border-top:1px solid var(--border);padding:8px;background:var(--surface2);font-size:11px;display:grid;grid-template-columns:auto 1fr;gap:2px 10px}
+.detail span:nth-child(odd){color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="win">
+  <!-- Title / header -->
+  <div class="title">
+    <svg class="logo" viewBox="0 0 96 96"><rect x="8" y="14" width="42" height="60" rx="5" fill="#D0E0F0" stroke="#105090" stroke-width="5"/><rect x="10" y="16" width="38" height="12" fill="#105090"/><path d="M8 43H50M8 58H50M29 28V74" stroke="#105090" stroke-width="3"/><path d="M71 26 87 35 71 44 55 35Z M55 35V53L71 62V44Z M87 35V53L71 62V44Z" fill="#D0E0F0" stroke="#105090" stroke-width="5" stroke-linejoin="round"/><path d="M30 84H70" stroke="#E07020" stroke-width="5"/><path d="M78 84 68 77V91ZM22 84 32 77V91Z" fill="#E07020"/></svg>
+    <span class="name">ParamBridge</span><span class="ver">Excel Sync · 1.0</span>
+    <span class="spacer"></span>
+    <span class="chip">Profile <select style="border:0;background:transparent;padding:0"><option>MEP – Air terminals</option><option>Doors QA</option></select></span>
+    <button class="ib" title="Save profile">💾</button><button class="ib" title="Save as…">＋</button><button class="ib" title="Import profile">⇩</button><button class="ib" title="Delete">🗑</button>
+    <span class="chip" title="Background progress">Ready <span class="prog"><i></i></span></span>
+    <button class="ib" id="themeBtn" title="Light / dark">☾</button><button class="ib" title="Help">?</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab on">Model <span class="n">1</span> <span class="star">★</span></div>
+    <div class="tab">Annotation</div><div class="tab">Elements</div><div class="tab">Schedules</div><div class="tab">Spatial</div><div class="tab">Panels</div>
+    <div class="tab">▦ Preview / Edit</div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="tool">
+    <span class="seg"><b class="on">Whole model</b><b>Active view</b><b>Current selection</b></span>
+    <label><input type="checkbox"> Include linked files</label>
+    <label><input type="checkbox"> Export by type</label>
+    <span class="spacer"></span>
+    <button class="btn ghost" title="Section box around selection">⬚ Section box</button>
+    <button class="btn ghost">◎ Isolate</button>
+    <button class="btn ghost">⟲ Reset view</button>
+    <button class="btn ghost">⚙ Project standards ▾</button>
+  </div>
+
+  <div class="body">
+    <!-- Categories -->
+    <div class="col">
+      <div class="colh"><input type="checkbox" checked style="accent-color:var(--accent)"> Categories <span class="c">1 / 23</span></div>
+      <div class="f"><select><option>All disciplines</option><option>Mechanical</option><option>Electrical</option><option>Plumbing</option><option>Architecture</option><option>Structure</option></select></div>
+      <div class="f"><input type="search" placeholder="Search categories"></div>
+      <div class="list">
+        <label class="cat"><input type="checkbox" checked> Air Terminals <span class="cnt">124</span></label>
+        <label class="cat"><input type="checkbox"> Duct Accessories <span class="cnt">310</span></label>
+        <label class="cat"><input type="checkbox"> Duct Fittings <span class="cnt">1 842</span></label>
+        <label class="cat"><input type="checkbox"> Duct Insulations <span class="cnt">902</span></label>
+        <label class="cat"><input type="checkbox"> Ducts <span class="cnt">860</span></label>
+        <label class="cat"><input type="checkbox"> Flex Ducts <span class="cnt">77</span></label>
+        <label class="cat"><input type="checkbox"> HVAC Zones <span class="cnt">14</span></label>
+        <label class="cat"><input type="checkbox"> Mechanical Equipment <span class="cnt">47</span></label>
+        <label class="cat"><input type="checkbox"> Pipe Accessories <span class="cnt">265</span></label>
+        <label class="cat"><input type="checkbox"> Pipe Fittings <span class="cnt">2 110</span></label>
+        <label class="cat"><input type="checkbox"> Pipes <span class="cnt">1 390</span></label>
+        <label class="cat"><input type="checkbox"> Plumbing Fixtures <span class="cnt">96</span></label>
+        <label class="cat"><input type="checkbox"> Sprinklers <span class="cnt">412</span></label>
+      </div>
+      <div class="foot"><label><input type="checkbox"> Hide unchecked</label><span class="spacer"></span><span>124 elements</span></div>
+    </div>
+
+    <!-- Available parameters -->
+    <div class="col">
+      <div class="colh">Available parameters <span class="c">153 found</span></div>
+      <div class="f"><input type="search" placeholder="Search name, group or GUID"><select style="flex:0 0 130px"><option>Group: Parameter group</option><option>Group: none (A–Z)</option><option>Group: kind</option></select></div>
+      <div class="list" id="avail"></div>
+      <div class="detail" id="detail"><span>Parameter</span><span>Assembly Description</span><span>Kind</span><span>Type · read-only</span><span>Data type</span><span>Text</span><span>Origin</span><span>Built-in · ASSEMBLY_DESCRIPTION</span><span>Coverage</span><span>124 / 124 elements (100 %)</span></div>
+      <div class="legend">
+        <span class="lg inst" data-k="inst">■ Instance <b>62</b></span>
+        <span class="lg type" data-k="type">⌥ Type <b>48</b></span>
+        <span class="lg ro" data-k="ro">● Read-only <b>43</b></span>
+      </div>
+    </div>
+
+    <!-- Move buttons -->
+    <div class="mid">
+      <button class="ib" title="Add (Enter)">▶</button>
+      <button class="ib" title="Remove (Del)">◀</button>
+      <div style="height:12px"></div>
+      <button class="ib" title="Add all filtered">⏩</button>
+      <button class="ib" title="Remove all">⏪</button>
+    </div>
+
+    <!-- Selected parameters -->
+    <div class="col">
+      <div class="colh">Selected · Excel column order <span class="c">5</span></div>
+      <div class="f"><input type="search" placeholder="Search selected"></div>
+      <div class="list" id="selected"></div>
+      <div class="order">
+        <button class="ib" title="Move to top">⤒</button><button class="ib" title="Up">▲</button><button class="ib" title="Down">▼</button><button class="ib" title="Move to bottom">⤓</button>
+        <button class="ib" title="Sort A–Z">A↓</button><button class="ib" title="Clear">⟲</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="bar">
+    <span class="status"><b>1</b> category · <b>124</b> elements · <b>153</b> parameters found · <b>5</b> selected · <span class="warn">⚠ 1 selected parameter missing on 12 elements</span></span>
+    <span class="spacer"></span>
+    <button class="btn ghost">Reset</button>
+    <button class="btn">▦ Preview / Edit</button>
+    <span class="split"><button class="btn">⇩ Import</button><button class="btn">▾</button></span>
+    <span class="split"><button class="btn primary">⇪ Export</button><button class="btn primary">▾</button></span>
+  </div>
+</div>
+
+<script>
+const K={inst:'<svg viewBox="0 0 14 14"><rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor"/></svg>',
+         type:'<svg viewBox="0 0 14 14"><path d="M3 2v10M3 4h7v3M3 9h7v3" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>',
+         ro:'<svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="currentColor"/></svg>'};
+const C={inst:'var(--instLine)',type:'var(--typeLine)',ro:'var(--roLine)'};
+const avail=[
+ ['Constraints',[['Level','ro','Level',100],['Offset','inst','Length · mm',100],['Host','ro','Text',100]]],
+ ['Mechanical – Flow',[['Actual Flow','ro','Air flow · L/s',100],['Add. Flow','inst','Air flow · L/s',100,'SHR'],['Flow Configuration','inst','Yes/No',100]]],
+ ['Dimensions',[['Box Height','type','Length · mm',100],['Box Width','type','Length · mm',100],['Neck Size','type','Length · mm',88]]],
+ ['Identity Data',[['Assembly Code','type','Text',100],['Assembly Description','ro','Text',100],['Comments','inst','Text',100],['Mark','inst','Text',100],['Type Mark','type','Text',100],['_SA_ServingEquipment','inst','Text',100,'SHR'],['Cost','type','Currency',100]]],
+ ['IFC Parameters',[['IfcGUID','ro','Text',100],['Export to IFC','inst','Integer',100]]],
+];
+const sel=[['Mark','inst'],['Comments','inst'],['Add. Flow','inst'],['Type Mark','type'],['Neck Size','type']];
+const a=document.getElementById('avail');
+avail.forEach(([g,rows])=>{a.insertAdjacentHTML('beforeend',`<div class="grp">${g.toUpperCase()}</div>`);
+ rows.forEach(([n,k,dt,cov,org])=>a.insertAdjacentHTML('beforeend',
+ `<div class="row ${k}${n==='Assembly Description'?' sel':''}" data-k="${k}"><span class="k" style="color:${C[k]}">${K[k]}</span><span>${n} ${org?'<span class="tag" style="color:var(--selLine)">SHARED</span>':''}</span><span class="dt">${dt}</span><span class="cov">${cov}%</span></div>`))});
+const s=document.getElementById('selected');
+sel.forEach(([n,k],i)=>s.insertAdjacentHTML('beforeend',`<div class="row ${k}${i===2?' sel':''}"><span class="k" style="color:${C[k]}">${K[k]}</span><span>${i+1}. ${n}</span><span class="dt"></span><span class="cov">${n==='Neck Size'?'<span class="warn">88%</span>':''}</span></div>`));
+document.querySelectorAll('.lg').forEach(l=>l.onclick=()=>{l.classList.toggle('off');const k=l.dataset.k,off=l.classList.contains('off');
+ a.querySelectorAll(`.row[data-k="${k}"]`).forEach(r=>r.style.display=off?'none':'')});
+document.getElementById('themeBtn').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'};
+</script>
+</body>
+</html>

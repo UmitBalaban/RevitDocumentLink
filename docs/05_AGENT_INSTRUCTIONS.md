@@ -1,6 +1,6 @@
 # 05 — Instructions for the coding agent (DeepSeek or any other)
 
-You are implementing **ParamBridge**, a Revit 2025/2026 add-in. Read, in order: `01_FEATURE_SPEC.md`, `02_ARCHITECTURE.md`, `03_UI_SPEC.md`, `04_EXCEL_FORMAT.md`. A starter solution is in `src/` — extend it, don't restart it.
+You are implementing **ParamBridge**, a Revit 2025/2026 add-in. Read, in order: `01_FEATURE_SPEC.md`, `02_ARCHITECTURE.md`, `03_UI_SPEC.md`, `07_UI_V2.md` (+ open `mockups/main-window.html`), `04_EXCEL_FORMAT.md`. Where 03 and 07 differ, **07 wins**. A starter solution is in `src/` — extend it, don't restart it.
 
 ## Hard rules
 1. **Original work only.** Do not copy, decompile, or paraphrase code, XAML, icons, Excel templates or UI text from DiRoots or any other commercial add-in. Implement from the specs and the public Revit API documentation.
@@ -21,6 +21,11 @@ You are implementing **ParamBridge**, a Revit 2025/2026 add-in. Read, in order: 
 - `ElementSource` (Model categories, scope: model / active view / selection), category list with counts, search.
 - `ParameterScanner` builds the union of instance + type parameters for checked categories; picker with INST/TYPE/RO filters, search, add/remove, reorder.
 - Accept: select Walls + Doors → see parameters; filters work; status bar counts correct.
+
+### M1.5 — UI v2 shell
+- Rebuild `MainWindow` per `07_UI_V2.md` and the mockup: custom title bar, tabs with badges, toolbar, four-column body, colour-coded parameter rows with glyphs, legend chips as filters, details pane, bottom bar. Light + dark colour dictionaries, theme follows Revit.
+- Coverage % and data-type column from `ParameterScanner`; discipline filter; group-by; keyboard shortcuts.
+- Accept: side-by-side with the mockup the structure and colours match; switching Revit to dark theme switches the window; 800 parameters scroll smoothly.
 
 ### M2 — Export to Excel
 - `ValueReader`, `WorkbookWriter` per 04 (mapping row, UniqueId column, styles, header notes, `_meta`, `Instructions`, dropdowns for Yes/No and Level/Phase/Material, protection).
@@ -47,6 +52,9 @@ You are implementing **ParamBridge**, a Revit 2025/2026 add-in. Read, in order: 
 ### M6 — Schedules tab
 - `ScheduleReader`, field-order columns, header = column heading, key schedules, read-only calculated fields; one sheet per schedule.
 - Two export modes: editable template vs keep formatting (not importable), scope whole model / active view, right-click open schedule (01 §10.5).
+
+### M6.5 — Preview / Edit tab
+- 07 §5: virtualized grid, kind colours, edit markers, Apply to model via Diff → Changes window, per-column filter.
 
 ### M7 — View tools & polish
 - Isolate / reset / select in model, section box from selection with offset, highlight & zoom (01 §10.4), profiles with custom/network locations (01 §10.8), sort by instance / by type, remember window size, Turkish strings (`Strings.tr.resx`), log file, performance check (50k elements).

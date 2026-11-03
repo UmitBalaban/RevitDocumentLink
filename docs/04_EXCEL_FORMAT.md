@@ -24,12 +24,12 @@ row 3+  <uniqueid>        123456       Ducts      …        …        value   
 - Parameter key grammar: `<I|T>|<BIP:<BuiltInParameter name> | SHR:<guid> | NAM:<name> | SCH:<schedule field index>>`
 - Freeze panes at B3; autofilter on row 2; column widths auto-fit (cap 60).
 
-## 3. Cell kinds & styling (our palette)
+## 3. Cell kinds & styling (our palette — same colours as the UI, see 07 §2)
 | Kind | Fill | Font | Locked |
 |---|---|---|---|
-| Editable instance value | none | normal | no |
-| Type parameter value | `#FFF1D6` | normal | no |
-| Read-only value | `#ECEEF2` | italic `#5B6270` | yes |
+| Editable instance value | `#E4F4EA` (option "tint instance cells", default on) | normal | no |
+| Type parameter value | `#FFF3D3` | normal | no |
+| Read-only value | `#FBE4E4` | italic `#8A3B39` | yes |
 | Parameter missing on this element | `#D0D3D9` with value empty | – | yes |
 | Linked-model element row | `#ECEEF2` whole row | italic | yes |
 | Header row | `#0F7B6C` | bold white | yes |
