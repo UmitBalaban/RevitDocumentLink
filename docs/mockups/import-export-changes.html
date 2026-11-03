@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DocumentLink Dialogs</title>
+<!-- Reference mockups: Export popup, Import menu (07 §9) and Changes preview window (01 §6.2, 07 §6). -->
+<style>
+:root{--bg:#EEF1F5;--surface:#FFFFFF;--surface2:#F7F9FB;--border:#D5DAE1;--text:#1B2430;--muted:#667085;--accent:#0F7B6C;--accentSoft:#DDF1EE;
+--inst:#E4F4EA;--instLine:#3E9A66;--type:#FFF3D3;--typeLine:#B7841A;--ro:#FBE4E4;--roLine:#C2514E;--ok:#2E7D32;--warn:#B26B00;--danger:#B3261E;--sel:#CFE5FA}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font:12px/1.35 "Segoe UI",system-ui,sans-serif}
+.wrap{max-width:1460px;margin:16px auto;display:grid;grid-template-columns:420px 1fr;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(16,24,40,.12)}
+.cap{color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.05em;margin:0 0 6px 2px}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;padding:6px 12px;display:inline-flex;gap:6px;align-items:center;font:inherit}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.split{display:inline-flex}.split .btn:first-child{border-radius:6px 0 0 6px}.split .btn:last-child{border-radius:0 6px 6px 0;border-left:0;padding:6px 8px}
+/* export popup */
+.pop{padding:14px;width:400px}
+.pop h3{margin:0 0 10px;font-size:13px}
+.opt{display:flex;gap:8px;align-items:flex-start;padding:5px 0}.opt small{display:block;color:var(--muted)}
+.opt.dis{opacity:.45}
+.dest{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.d{border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px;position:relative}
+.d.def{border-color:var(--accent);box-shadow:0 0 0 2px var(--accentSoft)}
+.d .star{position:absolute;top:6px;right:8px;color:#E0A030}
+.d.off{opacity:.45}
+.xl{width:28px;height:28px;border-radius:5px;background:#1D6F42;color:#fff;display:grid;place-items:center;font-weight:700}
+.path{margin-top:10px;display:flex;gap:6px}.path input{flex:1;font:inherit;border:1px solid var(--border);border-radius:5px;padding:5px 8px}
+/* import menu */
+.menu{width:340px;padding:4px 0;margin-top:6px}
+.mi{padding:7px 12px;display:flex;gap:10px;align-items:center}.mi:hover,.mi.hl{background:var(--accentSoft)}
+.mi small{color:var(--muted);margin-left:auto}
+.sep{height:1px;background:var(--border);margin:4px 0}
+.recent{color:var(--muted);font-size:11px;padding:4px 12px}
+/* changes window */
+.chg{display:flex;flex-direction:column;height:640px}
+.chg .t{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.chg .t b{font-size:14px}
+.tb{display:flex;gap:10px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--border)}
+.cnt{display:flex;gap:12px;margin-left:auto;font-weight:600}.cnt .ok{color:var(--ok)}.cnt .w{color:var(--warn)}.cnt .e{color:var(--danger)}
+select,input[type=search]{font:inherit;border:1px solid var(--border);border-radius:5px;padding:4px 8px;background:var(--surface)}
+.g{flex:1;overflow:auto}
+table{border-collapse:collapse;width:100%}
+th{position:sticky;top:0;background:var(--surface2);text-align:left;font-weight:600;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border)}
+td{padding:5px 8px;border-bottom:1px solid #EEF0F3;white-space:nowrap}
+td.p{border-left:3px solid transparent}
+td.p.inst{background:var(--inst);border-left-color:var(--instLine)} td.p.type{background:var(--type);border-left-color:var(--typeLine)} td.p.ro{background:var(--ro);border-left-color:var(--roLine)}
+.old{color:var(--muted);text-decoration:line-through}.new{font-weight:700}
+tr.err td{color:var(--danger)} tr.err .new{color:var(--danger)} tr.wrn td.st{color:var(--warn)}
+.st{font-weight:600}
+.foot{display:flex;gap:8px;align-items:center;padding:10px 14px;border-top:1px solid var(--border);background:var(--surface2)}
+.foot .muted{color:var(--muted)}
+.spacer{flex:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div>
+    <p class="cap">EXPORT POPUP (anchored to Export ▾)</p>
+    <div class="card pop">
+      <h3>Export options</h3>
+      <label class="opt"><input type="checkbox" checked><span>Open file after export</span></label>
+      <label class="opt"><input type="checkbox" checked><span>Include Instructions sheet</span></label>
+      <label class="opt"><input type="checkbox"><span>Protect read-only cells<small>Locks red and grey cells (no password).</small></span></label>
+      <label class="opt"><span style="width:13px"></span><span>Layout &nbsp;<select><option>One sheet per category</option><option>Single sheet</option></select></span></label>
+      <label class="opt dis"><input type="checkbox" disabled><span>Keep schedule formatting<small>Schedules tab only · file cannot be imported back</small></span></label>
+      <div class="path"><input value="C:\Projects\BTS\Exports\BTS-CVH-M3_AirTerminals.xlsx"><button class="btn">Browse…</button></div>
+      <div class="dest">
+        <div class="d def"><span class="star">★</span><span class="xl">X</span><span><b>Excel</b><br><small style="color:var(--muted)">default destination</small></span></div>
+        <div class="d off"><span class="star">☆</span><span class="xl" style="background:#888">G</span><span><b>Google Sheets</b><br><small style="color:var(--muted)">v2</small></span></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="btn">Cancel</button><button class="btn primary">⇪ Export</button></div>
+    </div>
+
+    <p class="cap" style="margin-top:22px">IMPORT ▾ MENU</p>
+    <span class="split"><button class="btn">⇩ Import</button><button class="btn">▾</button></span>
+    <div class="card menu">
+      <div class="mi hl">⇩ Import from Excel… <small>Ctrl+I</small></div>
+      <div class="mi">▦ Preview import… <small>opens in Preview / Edit</small></div>
+      <div class="sep"></div>
+      <div class="recent">RECENT</div>
+      <div class="mi">BTS-CVH-M3_AirTerminals.xlsx <small>today 20:41</small></div>
+      <div class="mi">BTS-CVH-M3_Ducts.xlsx <small>yesterday</small></div>
+    </div>
+  </div>
+
+  <div>
+    <p class="cap">CHANGES PREVIEW WINDOW (modal, before anything is written)</p>
+    <div class="card chg">
+      <div class="t"><b>Review changes</b><span style="color:var(--muted)">BTS-CVH-M3_AirTerminals.xlsx → BTS-CVH-ZZ-ZZ-M3-M-XXXX-0301.rvt</span></div>
+      <div class="tb">
+        <span>Show</span><select><option>All</option><option>Will apply</option><option>Warnings</option><option>Errors</option></select>
+        <input type="search" placeholder="Search element, parameter, value">
+        <span class="cnt"><span class="ok">✓ 118</span><span class="w">⚠ 3</span><span class="e">✗ 2</span></span>
+      </div>
+      <div class="g"><table>
+        <tr><th></th><th>Sheet</th><th>Id</th><th>Type</th><th>Parameter</th><th>Old → New</th><th>Status</th></tr>
+        <tbody id="ch"></tbody>
+      </table></div>
+      <div class="foot"><button class="btn">⟲ Reset values</button><span class="muted">All changes are applied as one undo step.</span><span class="spacer"></span><button class="btn">Cancel</button><button class="btn primary">✓ Apply 121 selected</button></div>
+    </div>
+  </div>
+</div>
+<script>
+const rows=[
+ ['✓','Air Terminals',20432032,'Linear Diffuser: 1200 Slot','Comments','inst','','Check balancing','Will apply',''],
+ ['✓','Air Terminals',20432153,'Linear Diffuser: 1200 Slot','Flow','inst','150 L/s','180 L/s','Will apply',''],
+ ['✓','Air Terminals',20432274,'Linear Diffuser: 1500 Slot','Width','type','1500 mm','1250 mm','Will apply','type · 14 elements'],
+ ['✓','Air Terminals',20432395,'Access Panel: 600 x 600','Reference Level','inst','-0.07 GROUND FLOOR','10.43','Will apply',''],
+ ['✓','Air Terminals',20432516,'Grille: 400 x 200','Workset','inst','Main Workset','MEP - Air','Will apply',''],
+ ['☐','Air Terminals',20432637,'Grille: 400 x 200','Mark','inst','G-12','G-12 ','Warning','trailing space'],
+ ['✗','Air Terminals',20432758,'Linear Diffuser: 1200 Slot','Fire Rating','type','—','60','Error','instances of this type have different values'],
+ ['✗','Air Terminals',20432879,'Access Panel: 600 x 600','Family and Type','ro','Access Panel: 600 x 600','Access Panel: 450','Error','read-only parameter'],
+];
+document.getElementById('ch').innerHTML=rows.map(r=>`<tr class="${r[8]=='Error'?'err':r[8]=='Warning'?'wrn':''}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td class="p ${r[5]}">${r[4]}</td><td><span class="old">${r[6]||'(empty)'}</span> → <span class="new">${r[7]}</span></td><td class="st">${r[8]=='Error'?'✗':r[8]=='Warning'?'⚠':'✓'} ${r[9]||r[8]}</td></tr>`).join('');
+</script>
+</body>
+</html>

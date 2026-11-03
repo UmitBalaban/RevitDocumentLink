@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DocumentLink Preview Edit</title>
+<!-- Reference mockup for the Preview / Edit tab (docs/07_UI_V2.md §5, §9). Cell fills = docs/04_EXCEL_FORMAT.md §3. -->
+<style>
+:root{--bg:#EEF1F5;--surface:#FFFFFF;--surface2:#F7F9FB;--border:#D5DAE1;--grid:#E3E6EB;--text:#1B2430;--muted:#667085;
+--accent:#0F7B6C;--accentSoft:#DDF1EE;--hdr:#0F7B6C;--hdrText:#FFFFFF;--hdrSub:#CFEDE8;
+--cType:#FFE8A3;--cRo:#F7C1C1;--cRoText:#5A1F1D;--cMiss:#BFBFBF;--cId:#F2F2F2;--edit:#2F7FD0;--warn:#B26B00}
+:root[data-theme="dark"]{--bg:#1E232B;--surface:#262C35;--surface2:#2C333D;--border:#3A424E;--grid:#343B46;--text:#E6EAF0;--muted:#98A2B3;
+--accent:#2FB39F;--accentSoft:#1F3B38;--hdr:#1C5E55;--hdrSub:#A9D8D0;--cType:#5A4B1E;--cRo:#5A2C2C;--cRoText:#F3C9C7;--cMiss:#4A5059;--cId:#30363F;--edit:#5AA3EE}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font:12px/1.35 "Segoe UI",system-ui,sans-serif}
+.win{max-width:1240px;margin:16px auto;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;height:760px;overflow:hidden;box-shadow:0 1px 3px rgba(16,24,40,.1)}
+.title{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--border)}
+.name{font-size:15px;font-weight:600}.ver{color:var(--muted);font-size:11px}.spacer{flex:1}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:14px;padding:3px 10px;color:var(--muted);background:var(--surface2)}
+.prog{width:120px;height:6px;border-radius:3px;background:var(--border);overflow:hidden}.prog>i{display:block;height:100%;width:100%;background:var(--accent)}
+.ib{width:28px;height:28px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);display:inline-grid;place-items:center}
+.tabs{display:flex;gap:2px;padding:8px 12px 0;border-bottom:1px solid var(--border)}
+.tab{padding:7px 14px;border:1px solid transparent;border-bottom:none;border-radius:6px 6px 0 0;color:var(--muted)}
+.tab.on{background:var(--surface);border-color:var(--border);color:var(--text);font-weight:600;position:relative;top:1px;box-shadow:inset 0 2px 0 var(--accent)}
+.tool{display:flex;align-items:center;gap:12px;padding:8px 12px}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:6px;padding:6px 12px;display:inline-flex;gap:6px;align-items:center}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+input[type=search]{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 8px;width:220px}
+.edits{background:#E7F0FB;color:var(--edit);border-radius:10px;padding:2px 8px;font-weight:600}
+.gridwrap{flex:1;margin:0 12px;border:1px solid var(--border);border-radius:6px;overflow:auto;position:relative}
+table{border-collapse:separate;border-spacing:0;font-size:12px;min-width:100%}
+th,td{border-right:1px solid var(--grid);border-bottom:1px solid var(--grid);padding:3px 8px;white-space:nowrap}
+.colL th{position:sticky;top:0;background:var(--surface2);color:var(--muted);font-weight:400;text-align:center;height:22px;z-index:2}
+.hdr th{position:sticky;top:22px;background:var(--hdr);color:var(--hdrText);text-align:left;vertical-align:top;padding:5px 8px;z-index:2;min-width:120px}
+.hdr th b{display:block;font-size:12px}.hdr th small{display:block;color:var(--hdrSub);font-size:10.5px;line-height:1.3}
+.hdr th .flt{float:right;margin-left:8px;border:1px solid rgba(255,255,255,.5);border-radius:3px;font-size:9px;padding:0 3px}
+th.rn,td.rn{position:sticky;left:0;background:var(--surface2);color:var(--muted);text-align:right;width:38px;min-width:38px;z-index:1;font-weight:400}
+.hdr th.rn{background:var(--surface2);color:var(--muted);z-index:3}
+.colL th.rn{z-index:3}
+td.id{background:var(--cId);text-align:right;position:sticky;left:38px;z-index:1}
+.hdr th.idh{position:sticky;left:38px;z-index:3}
+td.t{background:var(--cType)} td.ro{background:var(--cRo);color:var(--cRoText)} td.m{background:var(--cMiss)}
+td.n{text-align:right}
+td.ed{font-weight:700;position:relative;box-shadow:inset 0 0 0 2px var(--edit)}
+td.ed::after{content:"";position:absolute;top:2px;right:2px;width:6px;height:6px;border-radius:50%;background:var(--edit)}
+tr.flt td{background:var(--surface);padding:2px 4px}
+tr.flt input{width:100%;border:1px solid var(--grid);border-radius:3px;padding:2px 4px;font:inherit;font-size:11px;background:var(--surface);color:var(--text)}
+.sheets{display:flex;align-items:center;gap:2px;padding:0 12px}
+.sheet{padding:6px 14px;border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;color:var(--muted);background:var(--surface2)}
+.sheet.on{background:var(--surface);color:var(--accent);font-weight:600;box-shadow:inset 0 -2px 0 var(--accent)}
+.sheet .n{font-size:10px;color:var(--muted);margin-left:4px}
+.bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid var(--border);background:var(--surface2);margin-top:8px}
+.status{color:var(--muted)}.status b{color:var(--text)}
+.legend{display:flex;gap:10px;align-items:center;color:var(--muted)}
+.sw{display:inline-block;width:14px;height:12px;border:1px solid var(--border);vertical-align:-2px;margin-right:4px}
+</style>
+</head>
+<body>
+<div class="win">
+  <div class="title">
+    <svg width="26" height="26" viewBox="0 0 96 96"><rect x="8" y="14" width="42" height="60" rx="5" fill="#D0E0F0" stroke="#105090" stroke-width="5"/><rect x="10" y="16" width="38" height="12" fill="#105090"/><path d="M8 43H50M8 58H50M29 28V74" stroke="#105090" stroke-width="3"/><path d="M71 26 87 35 71 44 55 35Z M55 35V53L71 62V44Z M87 35V53L71 62V44Z" fill="#D0E0F0" stroke="#105090" stroke-width="5" stroke-linejoin="round"/><path d="M30 84H70" stroke="#E07020" stroke-width="5"/><path d="M78 84 68 77V91ZM22 84 32 77V91Z" fill="#E07020"/></svg>
+    <span class="name">DocumentLink</span><span class="ver">Excel Sync · 1.0</span><span class="spacer"></span>
+    <span class="chip">[2/2 sheets] Reading values · 2/2 categories · 12 224/12 224 elements · 100 % <span class="prog"><i></i></span></span>
+    <span class="ib">☾</span><span class="ib">?</span>
+  </div>
+  <div class="tabs"><div class="tab">Model</div><div class="tab">Annotation</div><div class="tab">Elements</div><div class="tab">Schedules</div><div class="tab">Spatial</div><div class="tab on">▦ Preview / Edit</div></div>
+  <div class="tool">
+    <input type="search" placeholder="Find in sheet (Ctrl+F)">
+    <label><input type="checkbox"> Show only edited rows</label>
+    <label><input type="checkbox" checked> Column filters</label>
+    <span class="spacer"></span>
+    <span class="legend"><span><span class="sw"></span>Editable</span><span><span class="sw" style="background:var(--cType)"></span>Type value</span><span><span class="sw" style="background:var(--cRo)"></span>Read-only</span><span><span class="sw" style="background:var(--cMiss)"></span>Not on element</span></span>
+    <span class="edits">● 3 edits</span>
+  </div>
+  <div class="gridwrap">
+    <table>
+      <tr class="colL"><th class="rn"></th><th class="idh">B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th><th>J</th></tr>
+      <tr class="hdr">
+        <th class="rn">2</th>
+        <th class="idh"><span class="flt">▾</span><b>Element Id</b><small>Custom Parameter</small><small>Fixed</small><small>&nbsp;</small></th>
+        <th><span class="flt">▾</span><b>Family and Type</b><small>ElementId</small><small>Instance · read-only</small><small>Other</small></th>
+        <th><span class="flt">▾</span><b>Workset</b><small>Integer</small><small>Instance</small><small>Identity Data</small></th>
+        <th><span class="flt">▾</span><b>Workset</b><small>Integer</small><small>Type · read-only</small><small>Identity Data</small></th>
+        <th><span class="flt">▾</span><b>Reference Level</b><small>ElementId</small><small>Instance</small><small>Constraints</small></th>
+        <th><span class="flt">▾</span><b>Flow [L/s]</b><small>Double</small><small>Instance</small><small>Mechanical – Flow</small></th>
+        <th><span class="flt">▾</span><b>Width [mm]</b><small>Double</small><small>Type</small><small>Dimensions</small></th>
+        <th><span class="flt">▾</span><b>System Type</b><small>ElementId</small><small>Instance</small><small>Mechanical</small></th>
+        <th><span class="flt">▾</span><b>Comments</b><small>String</small><small>Instance</small><small>Identity Data</small></th>
+      </tr>
+      <tr class="flt"><td class="rn"></td><td class="id"><input placeholder="filter"></td><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td></tr>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="sheets"><span class="ib" style="border:0">◀</span><span class="ib" style="border:0">▶</span>
+    <div class="sheet on">Air Terminals <span class="n">2 665</span></div><div class="sheet">Ducts <span class="n">9 559</span></div><div class="sheet">Instructions</div></div>
+  <div class="bar">
+    <span class="status"><b>Air Terminals</b> · 2 665 rows · 9 columns · <b>3</b> edited cells in <b>3</b> rows · <span style="color:var(--warn)">⚠ 1 edit on a type parameter affects 14 elements</span></span>
+    <span class="spacer"></span>
+    <button class="btn">Discard edits</button>
+    <button class="btn">⇪ Export…</button>
+    <button class="btn primary">✓ Update model</button>
+  </div>
+</div>
+<script>
+const fams=["Linear Diffuser: 1200 Slot","Linear Diffuser: 1500 Slot","Access Panel: 600 x 600","Grille: 400 x 200"];
+const lv=["-0.07 GROUND FLOOR","10.43","-6.00 BASEMENT FLOOR"];
+let h="";for(let i=0;i<24;i++){const f=fams[i%4],r=i+3,isLin=f.startsWith("Linear");
+ const flow=isLin?(150+i*5):"",w=isLin?(f.includes("1200")?1200:1500):"";
+ h+=`<tr><td class="rn">${r}</td><td class="id n">${20431911+i*121}</td><td class="ro">${f}</td><td${i==4?' class="ed"':''}>${i==4?'MEP - Air':'Main Workset'}</td><td class="ro">Family : Air Terminals : ${f.split(":")[0]}</td>`+
+ `<td>${lv[i%3]}</td><td class="n${isLin?'':' m'}${i==1?' ed':''}">${i==1?'180':flow}</td><td class="n ${isLin?'t':'m'}${i==5?' ed':''}">${i==5?'1250':w}</td><td>Supply Air</td><td>${i%5==0?'Check balancing':''}</td></tr>`;}
+document.getElementById("rows").innerHTML=h;
+</script>
+</body>
+</html>
