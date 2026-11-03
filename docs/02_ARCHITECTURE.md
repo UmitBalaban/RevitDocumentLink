@@ -4,17 +4,17 @@
 
 ```
 src/
-  ParamBridge.sln
-  ParamBridge/                      single add-in project (net8.0-windows, WPF)
-    ParamBridge.csproj
-    ParamBridge.addin               Revit manifest (copied to Addins folder)
+  DocumentLink.sln
+  DocumentLink/                      single add-in project (net8.0-windows, WPF)
+    DocumentLink.csproj
+    DocumentLink.addin               Revit manifest (copied to Addins folder)
     App.cs                          IExternalApplication: ribbon, ExternalEvent host
     Commands/
       OpenMainWindowCommand.cs      IExternalCommand → shows/focuses the modeless window
     Infrastructure/
       RevitTask.cs                  async wrapper around ExternalEvent (await RevitTask.RunAsync(app => ...))
       Log.cs                        tiny file logger
-      ProfileStore.cs               JSON profiles in %AppData%\ParamBridge\Profiles
+      ProfileStore.cs               JSON profiles in %AppData%\DocumentLink\Profiles
     Core/
       Models/                       pure POCOs, no Revit types except ids-as-long
         ParamKey.cs                 identity of a parameter (BuiltIn / Shared GUID / Project-or-Family name) + Instance|Type
@@ -70,9 +70,12 @@ Import:  .xlsx ─► Task.Run: WorkbookReader (+validation) ─► SheetData(ex
          ChangesWindow (user ticks) ─► RevitTask: ChangeApplier (ValueWriter in TransactionGroup) ─► report
 ```
 
-## Revit API notes (2025/2026)
+## Revit API notes (2023–2026)
 
-- `ElementId.Value` (long). Never use `IntegerValue` (removed).
+- Supported: Revit 2023, 2024 (.NET Framework 4.8) and 2025, 2026 (.NET 8). Build per version with `RevitVersion`; constants `REVIT2023…REVIT2026`, `REVIT2024_OR_GREATER`, `REVIT2025_OR_GREATER`.
+- Differences handled in `Infrastructure/Compat.cs`: ElementId ↔ long (`Value` is 2024+), dark theme (`UIThemeManager`, 2024+; 2023 = light only).
+
+- ElementId ↔ long only via `Compat` (`id.Id()`, `value.ToElementId()`).
 - Units: `param.GetUnitTypeId()` gives the internal unit; display unit from `doc.GetUnits().GetFormatOptions(param.Definition.GetDataType()).GetUnitTypeId()`; convert with `UnitUtils.ConvertFromInternalUnits / ConvertToInternalUnits`. Only for `UnitUtils.IsMeasurableSpec(dataType)`. Symbol: `LabelUtils.GetLabelForSymbol(formatOptions.GetSymbolTypeId())` when symbol is not empty, else `LabelUtils.GetLabelForUnit(unitTypeId)`.
 - Yes/No: `dataType == SpecTypeId.Boolean.YesNo`, storage Integer 0/1 → export as "Yes"/"No".
 - ElementId parameters: export the referenced element's `Name` (Level, Material, Phase…); write by name lookup among `FilteredElementCollector(doc).OfClass(<same class as current value's element>)`.
@@ -91,11 +94,13 @@ Import:  .xlsx ─► Task.Run: WorkbookReader (+validation) ─► SheetData(ex
 
 | Package | Why |
 |---|---|
-| `Nice3point.Revit.Api.RevitAPI` / `RevitAPIUI` (2025.*, 2026.*) | Revit references without a local Revit install; `ExcludeAssets=runtime` |
+| `Nice3point.Revit.Api.RevitAPI` / `RevitAPIUI` (2023.* … 2026.*) | Revit references without a local Revit install; `ExcludeAssets=runtime` |
 | `ClosedXML` (0.104.x) | read/write .xlsx, data validation, styling, protection. MIT licensed |
 | `CommunityToolkit.Mvvm` (8.x) | `ObservableObject`, `RelayCommand` |
+| `PolySharp` | C# 12 language features on .NET Framework 4.8 (build-time only) |
+| `System.Text.Json` (net48 only) | profiles/settings JSON |
 
-ClosedXML pulls `DocumentFormat.OpenXml`; Revit 2025 itself ships an older OpenXml in some setups — if a version conflict appears at runtime, isolate with an `AssemblyLoadContext` (Revit 2026 supports add-in isolation via the `.addin` manifest) or use the same version Revit ships. Ajan bunu kabul testinde doğrulamalı.
+ClosedXML pulls `DocumentFormat.OpenXml`; Revit 2025 itself ships an older OpenXml in some setups — if a version conflict appears at runtime, isolate with an `AssemblyLoadContext` (Revit 2026 supports add-in isolation via the `.addin` manifest) or use the same version Revit ships. On Revit 2023/2024 (.NET Framework, no load contexts) an `OpenXml` version clash with other add-ins is more likely: test with a few common add-ins loaded; if it happens, add a binding-redirect-free fallback (ILRepack/merge ClosedXML + OpenXml into DocumentLink.dll with internalized names). The agent must check this in the M2 acceptance test on 2023 and 2025.
 
 ## Error handling & logging
 - Every RevitTask call wraps exceptions and returns them to the awaiting UI code, which shows a single friendly dialog + writes the stack trace to the log.

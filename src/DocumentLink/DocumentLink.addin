@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>DocumentLink</Name>
+    <Assembly>DocumentLink\DocumentLink.dll</Assembly>
+    <FullClassName>DocumentLink.App</FullClassName>
+    <ClientId>5B0D2E61-7C3A-4F1E-9B8D-2A6F4C1E9D37</ClientId>
+    <VendorId>PRBR</VendorId>
+    <VendorDescription>DocumentLink</VendorDescription>
+  </AddIn>
+</RevitAddIns>

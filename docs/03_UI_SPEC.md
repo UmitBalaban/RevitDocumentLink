@@ -27,7 +27,7 @@ Badges (pill shaped, 10px semibold) are how kinds are shown — **not** full-row
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ [logo] ParamBridge     Profile: [ Default        ▼] [💾][＋][✎][🗑] [⇪][⇩] │  ← header bar (Surface)
+│ [logo] DocumentLink     Profile: [ Default        ▼] [💾][＋][✎][🗑] [⇪][⇩] │  ← header bar (Surface)
 ├──────────────────────────────────────────────────────────────────────────┤
 │  Model │ Annotation │ Elements │ Schedules │ Spatial                       │  ← tabs (underline = Accent)
 ├───────────────────────┬──────────────────────────────────────────────────┤
@@ -65,7 +65,7 @@ Same visual language as our other add-ins (FilterManager / FilterHealth / Filter
 - **Transparent background, no tile.** Glyph sits in a 96 px grid with ~8 px margin.
 - **Filled line icon:** outline + light fill. Light theme: outline `#105090` (secondary `#2060A0`), fill `#D0E0F0`. Dark theme: outline `#70B0E0`, fill `#204050`.
 - **One accent detail** in orange: `#E07020` light / `#F0A050` dark (green `#208050` is reserved for "health/check" tools).
-- Every icon ships as a **light + dark pair**: `bridge_light_16/32/96.png`, `bridge_dark_16/32/96.png`. `App.ApplyIcons()` picks the pair from `UIThemeManager.CurrentTheme` and re-applies on `ThemeChanged` (Revit 2024+).
-- ParamBridge glyph: spreadsheet (left) + isometric cube = model (right) + orange two-way arrow underneath. 16 px variant drops inner grid lines.
+- Every icon ships as a **light + dark pair**: `icon_light_16/32/96.png`, `icon_dark_16/32/96.png`. `App.ApplyIcons()` picks the pair from `UIThemeManager.CurrentTheme` and re-applies on `ThemeChanged` (Revit 2024+).
+- DocumentLink glyph: spreadsheet (left) + isometric cube = model (right) + orange two-way arrow underneath. 16 px variant drops inner grid lines.
 - Preview: `assets/icon_preview.png`.
 - Toolbar glyphs inside windows: Segoe Fluent Icons / Segoe MDL2 Assets: Save `E74E`, Add `E710`, Rename `E8AC`, Delete `E74D`, Import `E8B5`, Export `EDE1`, Isolate `E7B3`, Select `E8B3`, Up `E70E`, Down `E70D`.

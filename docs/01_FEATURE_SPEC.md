@@ -1,4 +1,4 @@
-# 01 — Functional Specification (ParamBridge)
+# 01 — Functional Specification (DocumentLink)
 
 Goal: a Revit add-in that exports model data to Excel, lets the user edit it, and imports the edits back into the model. Behaviour mirrors the well-known "Revit ⇄ Excel round-trip" workflow (as in DiRoots SheetLink), implemented from scratch with our own UI and icons.
 
@@ -8,7 +8,7 @@ Target: Revit 2025 and 2026 (.NET 8, WPF). Revit 2022–2024 (.NET Framework 4.8
 
 ## 1. Entry point
 
-- Revit's built-in **Add-Ins** tab, panel **ParamBridge**, push button **Excel Sync** (32px + 16px icons, tooltip: "Export model data to Excel, edit it, and update the model from the edited file.").
+- Revit's built-in **Add-Ins** tab, panel **DocumentLink**, push button **Excel Sync** (32px + 16px icons, tooltip: "Export model data to Excel, edit it, and update the model from the edited file.").
 - Opens a **modeless** main window (user can keep working in Revit). All model reads/writes run through an `ExternalEvent` (see 02_ARCHITECTURE).
 - Only one main window instance per Revit session; clicking again focuses it.
 
@@ -48,7 +48,7 @@ Two lists side by side: **Available parameters** ⇄ **Selected parameters** (ad
 
 - A profile stores: tab, checked categories/schedules/spatial kind, scope option, selected parameter keys in order, export options.
 - Toolbar: profile dropdown, **Save**, **Save as new**, **Rename**, **Delete**, **Import profile (.json)**, **Export profile (.json)**.
-- Stored as JSON in `%AppData%\ParamBridge\Profiles\` (one file per profile). Name validation: not empty, unique, no `\ : { } [ ] | ; < > ? \` ~` characters.
+- Stored as JSON in `%AppData%\DocumentLink\Profiles\` (one file per profile). Name validation: not empty, unique, no `\ : { } [ ] | ; < > ? \` ~` characters.
 - When a profile references a parameter or category that does not exist in the current model, keep it in the file but show it greyed with a warning icon.
 
 ## 5. Export
@@ -77,7 +77,7 @@ See 04_EXCEL_FORMAT for the exact contract. Summary:
 
 ### 6.1 Flow
 1. **Import…** → pick .xlsx (or drag-drop onto the window).
-2. Validate workbook: every data sheet must have the mapping row and UniqueId column. Otherwise show: *"This workbook was not created by ParamBridge or its hidden mapping row/column was changed."* and stop for that sheet.
+2. Validate workbook: every data sheet must have the mapping row and UniqueId column. Otherwise show: *"This workbook was not created by DocumentLink or its hidden mapping row/column was changed."* and stop for that sheet.
 3. For each row: find element by `UniqueId` (fallback: Element Id column if UniqueId cell empty and element exists – warn).
 4. For each editable cell: convert Excel value → Revit value (units, Yes/No, ElementId lookup by name), compare with current model value. If different → a **Change**.
 5. Show the **Changes preview** window (§6.2). Nothing is written until the user confirms.
@@ -117,7 +117,7 @@ A "Preview / Edit" tab inside the main window showing the exact grid that will b
 ## 8. Non-functional
 - 50,000 elements × 30 parameters must export in < 60 s on a normal laptop: read all values inside one ExternalEvent call, cache `Definition` lookups, write Excel with ClosedXML in bulk (`InsertData` / `Cell.Value` per row, avoid per-cell styling — style ranges).
 - UI never blocks Revit; long operations show a progress window with Cancel.
-- Logging to `%AppData%\ParamBridge\Logs\yyyy-MM-dd.log`.
+- Logging to `%AppData%\DocumentLink\Logs\yyyy-MM-dd.log`.
 - Localisation-ready: all user strings in `Resources/Strings.resx` (English first; Turkish second).
 - No telemetry, no licensing in v1.
 
@@ -165,7 +165,7 @@ Two-level selection: first a **category list**, then a **list of that category's
 - **Import project standards**: only Project Information parameters are written back.
 
 ### 10.8 Profiles (refined)
-- Saving asks for a name **and a location** (default `%AppData%\ParamBridge\Profiles`, but any folder incl. network share). A profile list remembers the paths of profiles from other locations (`profiles-index.json`).
+- Saving asks for a name **and a location** (default `%AppData%\DocumentLink\Profiles`, but any folder incl. network share). A profile list remembers the paths of profiles from other locations (`profiles-index.json`).
 - Import = browse to a profile file anywhere and add it to the list; Delete removes it from the list (and deletes the file only if it is in the default folder, after confirmation).
 - A profile stores: tab, scope, include-links, export-by-type flag, selected categories/types/schedules/rooms, parameter keys in order.
 

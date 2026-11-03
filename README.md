@@ -1,4 +1,4 @@
-# ParamBridge — Revit ⇄ Excel parametre senkronizasyon eklentisi
+# DocumentLink — Revit ⇄ Excel parametre senkronizasyon eklentisi
 
 Bu paket, DiRoots SheetLink'in **çalışma şeklini** (işlevsel davranışını) örnek alan, ama kodu, arayüz tasarımı ve ikonları tamamen özgün olan bir Revit eklentisi geliştirmek için hazırlandı. İçinde:
 
@@ -10,16 +10,16 @@ Bu paket, DiRoots SheetLink'in **çalışma şeklini** (işlevsel davranışın�
 | `docs/04_EXCEL_FORMAT.md` | Excel dosya sözleşmesi: gizli satır/sütun, renk kodları, Instructions sayfası |
 | `docs/05_AGENT_INSTRUCTIONS.md` | **DeepSeek'e (veya başka bir kodlama ajanına) verilecek ana talimat**: kilometre taşları, kabul testleri, kurallar |
 | `docs/06_REA_FINDINGS.md` | Rea ile DiRoots One 2.4.1.0 üzerinde yapılan statik analizin özeti (yalnızca özellik yüzeyi) |
-| `src/` | Başlangıç C# çözümü (.NET 8, WPF, MVVM, Revit 2025/2026) |
+| `src/` | Başlangıç C# çözümü (WPF, MVVM; Revit 2023–2026: 2023/2024 .NET Framework 4.8, 2025/2026 .NET 8) |
 
 ## Hızlı başlangıç (Revit olan Windows makinede)
 
 1. Visual Studio 2022 (17.8+) veya `dotnet` SDK 8 kurulu olsun.
-2. `src/ParamBridge.sln` dosyasını açın, **Release | x64** derleyin.
+2. `src/DocumentLink.sln` dosyasını açın, **Release | x64** derleyin.
    - Revit API referansları NuGet'ten (`Nice3point.Revit.Api.*`) gelir, Revit kurulu klasöre referans gerekmez.
-   - Varsayılan hedef Revit 2025. Revit 2026 için: `dotnet build -c Release -p:RevitVersion=2026`
-3. Derleme sonunda `ParamBridge.addin` ve DLL'ler `%AppData%\Autodesk\Revit\Addins\2025\` altına otomatik kopyalanır (csproj içindeki `DeployToRevit` hedefi). İstemezseniz `-p:DeployToRevit=false`.
-4. Revit'i açın → **Add-Ins** sekmesi → **ParamBridge** paneli → **Excel Sync** butonu.
+   - Varsayılan hedef Revit 2025. Tek sürüm: `dotnet build src/DocumentLink/DocumentLink.csproj -c Release -p:RevitVersion=2023` (2023/2024/2025/2026). Hepsi birden: `./build-all.ps1`
+3. Derleme sonunda `DocumentLink.addin` ve DLL'ler `%AppData%\Autodesk\Revit\Addins\<sürüm>\` altına otomatik kopyalanır (csproj içindeki `DeployToRevit` hedefi). İstemezseniz `-p:DeployToRevit=false`.
+4. Revit'i açın → **Add-Ins** sekmesi → **DocumentLink** paneli → **Excel Sync** butonu.
 
 > Not: Bu iskelet Linux/Mac üzerinde yazıldı, Revit karşısında henüz derlenip test edilmedi. İlk derlemede küçük API/derleme hataları çıkabilir; `05_AGENT_INSTRUCTIONS.md` ajanın bunları nasıl ele alacağını tarif ediyor.
 

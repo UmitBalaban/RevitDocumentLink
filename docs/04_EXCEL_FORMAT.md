@@ -1,6 +1,6 @@
 # 04 — Excel file contract
 
-ParamBridge-generated workbooks are both human-friendly and machine-readable. Import relies on this contract; tamper detection protects it.
+DocumentLink-generated workbooks are both human-friendly and machine-readable. Import relies on this contract; tamper detection protects it.
 
 ## 1. Sheets
 | Sheet | Visibility | Content |
@@ -15,12 +15,12 @@ Sheet names: max 31 chars, strip `: \ / ? * [ ]`, make unique by suffix ` (2)`.
 ## 2. Data sheet layout
 ```
         A (hidden)        B            C          D        E        F …
-row 1   ##PB              I|BIP:ID     I|BIP:CAT  I|BIP:FAM T|BIP:SYMBOL_NAME_PARAM  I|SHR:6f1c…  (hidden)
+row 1   ##DL              I|BIP:ID     I|BIP:CAT  I|BIP:FAM T|BIP:SYMBOL_NAME_PARAM  I|SHR:6f1c…  (hidden)
 row 2   UniqueId          Element Id   Category   Family   Type     Comments    Length [mm] …    (header, bold, frozen)
 row 3+  <uniqueid>        123456       Ducts      …        …        value       1250 …
 ```
-- **A1** = literal `##PB` marker. **Column A** hidden = `Element.UniqueId`. **Row 1** hidden = *parameter keys*.
-- Fixed columns B–E: `ID` (Element Id), `CAT`, `FAM`, `TYPE` — keys `I|PB:ID`, `I|PB:CAT`, `I|PB:FAM`, `I|PB:TYPE` (PB = pseudo, not real Revit parameters). Only `I|PB:TYPE` is editable (changes type, see 01 §6.3).
+- **A1** = literal `##DL` marker. **Column A** hidden = `Element.UniqueId`. **Row 1** hidden = *parameter keys*.
+- Fixed columns B–E: `ID` (Element Id), `CAT`, `FAM`, `TYPE` — keys `I|DL:ID`, `I|DL:CAT`, `I|DL:FAM`, `I|DL:TYPE` (DL = pseudo, not real Revit parameters). Only `I|DL:TYPE` is editable (changes type, see 01 §6.3).
 - Parameter key grammar: `<I|T>|<BIP:<BuiltInParameter name> | SHR:<guid> | NAM:<name> | SCH:<schedule field index>>`
 - Header text = two lines `Name [unit]` / `Kind · Data type · Group` (08 §4).
 - Values follow `08_VALUE_RULES.md` (names, labels, display units — no ids except the Element Id column).
@@ -29,12 +29,14 @@ row 3+  <uniqueid>        123456       Ducts      …        …        value   
 ## 3. Cell kinds & styling (our palette — same colours as the UI, see 07 §2)
 | Kind | Fill | Font | Locked |
 |---|---|---|---|
-| Editable instance value | `#E4F4EA` (option "tint instance cells", default on) | normal | no |
-| Type parameter value | `#FFF3D3` | normal | no |
-| Read-only value | `#FBE4E4` | italic `#8A3B39` | yes |
-| Parameter missing on this element | `#D0D3D9` with value empty | – | yes |
-| Linked-model element row | `#ECEEF2` whole row | italic | yes |
-| Header row | `#0F7B6C` | bold white | yes |
+| Editable instance value | **none** | normal | no |
+| Editable type value | yellow `#FFE8A3` | normal | no |
+| Read-only value (Family, Family and Type, type's Workset, calculated, reporting…) | red `#F7C1C1` | `#5A1F1D` | yes |
+| Parameter does not exist for this element | dark grey `#A9ADB3`, empty | – | yes |
+| Linked-model element row | red `#F7C1C1` whole row | `#5A1F1D` | yes |
+| Header row | accent `#0F7B6C` | bold white | yes |
+
+The **Preview / Edit** grid uses exactly the same fills so screen and file look identical.
 
 When "Protect read-only cells" is on: unlocked = editable + type cells; `worksheet.Protect()` with allowed: select locked/unlocked, format columns, sort, autofilter. No password.
 
@@ -51,7 +53,7 @@ Header cell comment (note) contains: parameter kind, data type, origin, group, a
 ## 5. `_meta` sheet
 | Key | Example |
 |---|---|
-| `format` | `ParamBridge/1` |
+| `format` | `DocumentLink/1` |
 | `revitVersion` | `2025` |
 | `documentTitle` | `Project1.rvt` |
 | `documentGuid` | ProjectInformation UniqueId (warn on import if different model) |
@@ -65,4 +67,4 @@ On import, recompute the hash per sheet. Mismatch on the **keys** part → refus
 1. What this file is and which model it came from (from `_meta`).
 2. Colour legend (table using the exact fills above).
 3. Rules: don't edit grey cells; type values must be consistent per type; don't insert columns before column B; don't modify hidden row 1/column A; restrict Find & Replace to a selected range.
-4. How to import back: ParamBridge → Excel Sync → Import…
+4. How to import back: DocumentLink → Excel Sync → Import…

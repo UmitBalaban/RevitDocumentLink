@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    One code base, one build per Revit version:
+      dotnet build -c Release -p:RevitVersion=2023   → net48
+      dotnet build -c Release -p:RevitVersion=2024   → net48
+      dotnet build -c Release -p:RevitVersion=2025   → net8.0-windows (default)
+      dotnet build -c Release -p:RevitVersion=2026   → net8.0-windows
+    Output: bin\Release\R<ver>\ ; deploy: %AppData%\Autodesk\Revit\Addins\<ver>\
+    Version symbols: REVIT2023 … REVIT2026, plus REVIT2024_OR_GREATER / REVIT2025_OR_GREATER.
+  -->
+  <PropertyGroup>
+    <RevitVersion Condition="'$(RevitVersion)' == ''">2025</RevitVersion>
+    <TargetFramework Condition="'$(RevitVersion)' == '2023' Or '$(RevitVersion)' == '2024'">net48</TargetFramework>
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>12</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+    <RootNamespace>DocumentLink</RootNamespace>
+    <AssemblyName>DocumentLink</AssemblyName>
+    <Version>0.1.0</Version>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\$(Configuration)\R$(RevitVersion)\</OutputPath>
+    <DeployToRevit Condition="'$(DeployToRevit)' == ''">true</DeployToRevit>
+    <DefineConstants>$(DefineConstants);REVIT$(RevitVersion)</DefineConstants>
+    <DefineConstants Condition="$(RevitVersion) &gt;= 2024">$(DefineConstants);REVIT2024_OR_GREATER</DefineConstants>
+    <DefineConstants Condition="$(RevitVersion) &gt;= 2025">$(DefineConstants);REVIT2025_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*" ExcludeAssets="runtime" />
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitVersion).*" ExcludeAssets="runtime" />
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <!-- C# 12 features (records, init, required, ranges) on .NET Framework 4.8 -->
+    <PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Icons\*.png" />
+    <None Update="DocumentLink.addin" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Copies the build output to %AppData%\Autodesk\Revit\Addins\<ver>\ -->
+  <Target Name="DeployToRevitAddins" AfterTargets="Build" Condition="'$(DeployToRevit)' == 'true' And '$(OS)' == 'Windows_NT'">
+    <PropertyGroup>
+      <AddinRoot>$(AppData)\Autodesk\Revit\Addins\$(RevitVersion)</AddinRoot>
+    </PropertyGroup>
+    <ItemGroup>
+      <DeployFiles Include="$(TargetDir)**\*.*" Exclude="$(TargetDir)**\*.addin" />
+    </ItemGroup>
+    <Copy SourceFiles="$(TargetDir)DocumentLink.addin" DestinationFolder="$(AddinRoot)" />
+    <Copy SourceFiles="@(DeployFiles)" DestinationFolder="$(AddinRoot)\DocumentLink\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

@@ -52,4 +52,4 @@ Type · Length · Dimensions
 = name [unit] / kind · data type · parameter group. The header note (comment) adds origin (Built-in name / Shared GUID / Project) and "same value for all elements of a type" for type params.
 
 ## 5. Tests (must exist from M2)
-Unit tests in `tests/ParamBridge.Tests` for the pure parts (culture parsing, rounding tolerance, `Family: Type` parsing). Manual Revit test list in M2/M3 must include: Level, Base/Top Constraint, Phase, Material, Workset, an integer enum (Wall Location Line), Yes/No, a length in a mm project and a feet-inch project, an area, an angle, a duct flow (L/s and CFM), Family-type parameter, Host (read-only), Room `Number - Name`.
+Unit tests in `tests/DocumentLink.Tests` for the pure parts (culture parsing, rounding tolerance, `Family: Type` parsing). Manual Revit test list in M2/M3 must include: Level, Base/Top Constraint, Phase, Material, Workset, an integer enum (Wall Location Line), Yes/No, a length in a mm project and a feet-inch project, an area, an angle, a duct flow (L/s and CFM), Family-type parameter, Host (read-only), Room `Number - Name`.

@@ -1,0 +1,7 @@
+<Project>
+  <!-- Separate obj folder per Revit version so net48 and net8 builds don't clash. Must be set before the SDK loads. -->
+  <PropertyGroup>
+    <RevitVersion Condition="'$(RevitVersion)' == ''">2025</RevitVersion>
+    <BaseIntermediateOutputPath>obj\R$(RevitVersion)\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>
