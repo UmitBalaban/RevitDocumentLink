@@ -1,6 +1,6 @@
 # DocumentLink — notes for Claude Code
 
-Revit **2023–2026** add-in (C# 12, WPF; .NET Framework 4.8 for 2023/2024, .NET 8 for 2025/2026), UI in English, that round-trips model data to Excel. Specs live in `docs/`; work plan and acceptance tests in `docs/05_AGENT_INSTRUCTIONS.md` — follow its milestones in order and stop after each one.
+Revit **2023–2026** add-in (C# 12, WPF; .NET Framework 4.8 for 2023/2024, .NET 8 for 2025/2026), UI in English, that round-trips model data to Excel. Specs live in `docs/` (product decisions: `docs/09_DECISIONS.md`); work plan and acceptance tests in `docs/05_AGENT_INSTRUCTIONS.md` — follow its milestones in order and stop after each one.
 
 ## Commands (run on Windows)
 - Build one version: `dotnet build src/DocumentLink/DocumentLink.csproj -c Release -p:RevitVersion=2025` (2023 | 2024 | 2025 | 2026; default 2025). Deploys to `%AppData%\Autodesk\Revit\Addins\<ver>\`.
