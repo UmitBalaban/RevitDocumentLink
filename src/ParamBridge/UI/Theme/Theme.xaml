@@ -1,0 +1,94 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Design tokens: docs/03_UI_SPEC.md -->
+    <SolidColorBrush x:Key="Bg" Color="#F6F7F9"/>
+    <SolidColorBrush x:Key="Surface" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Border" Color="#DADDE3"/>
+    <SolidColorBrush x:Key="Text" Color="#1C2330"/>
+    <SolidColorBrush x:Key="TextMuted" Color="#6B7380"/>
+    <SolidColorBrush x:Key="Accent" Color="#0F7B6C"/>
+    <SolidColorBrush x:Key="AccentHover" Color="#0C6357"/>
+    <SolidColorBrush x:Key="InstFg" Color="#2E7D32"/>
+    <SolidColorBrush x:Key="InstBg" Color="#E8F5E9"/>
+    <SolidColorBrush x:Key="TypeFg" Color="#8A5A00"/>
+    <SolidColorBrush x:Key="TypeBg" Color="#FFF1D6"/>
+    <SolidColorBrush x:Key="RoFg" Color="#5B6270"/>
+    <SolidColorBrush x:Key="RoBg" Color="#ECEEF2"/>
+    <SolidColorBrush x:Key="Danger" Color="#B3261E"/>
+    <SolidColorBrush x:Key="Warning" Color="#A15C00"/>
+    <FontFamily x:Key="Glyphs">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+    <Style TargetType="Window" x:Key="PbWindow">
+        <Setter Property="Background" Value="{StaticResource Bg}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    </Style>
+
+    <Style TargetType="Button" x:Key="PbButton">
+        <Setter Property="Padding" Value="12,5"/>
+        <Setter Property="Margin" Value="4,0"/>
+        <Setter Property="Background" Value="{StaticResource Surface}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="b" CornerRadius="4" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="b" Property="BorderBrush" Value="{StaticResource Accent}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="b" Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="PbPrimary" BasedOn="{StaticResource PbButton}">
+        <Setter Property="Background" Value="{StaticResource Accent}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Accent}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style TargetType="Button" x:Key="PbIcon" BasedOn="{StaticResource PbButton}">
+        <Setter Property="FontFamily" Value="{StaticResource Glyphs}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="7,5"/>
+        <Setter Property="Margin" Value="2,0"/>
+    </Style>
+
+    <Style TargetType="TextBox" x:Key="PbSearch">
+        <Setter Property="Padding" Value="6,4"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+        <Setter Property="Margin" Value="0,0,0,6"/>
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="SectionTitle">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+        <Setter Property="Margin" Value="0,0,0,6"/>
+    </Style>
+
+    <!-- Pill badge for parameter kind; Tag = "INST" | "TYPE" | "RO" -->
+    <Style TargetType="Border" x:Key="Badge">
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="6,1"/>
+        <Setter Property="Margin" Value="6,0,0,0"/>
+        <Setter Property="Background" Value="{StaticResource InstBg}"/>
+        <Style.Triggers>
+            <Trigger Property="Tag" Value="TYPE"><Setter Property="Background" Value="{StaticResource TypeBg}"/></Trigger>
+            <Trigger Property="Tag" Value="RO"><Setter Property="Background" Value="{StaticResource RoBg}"/></Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>
