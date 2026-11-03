@@ -1,6 +1,6 @@
 # 05 — Instructions for the coding agent (DeepSeek or any other)
 
-You are implementing **ParamBridge**, a Revit 2025/2026 add-in. Read, in order: `01_FEATURE_SPEC.md`, `02_ARCHITECTURE.md`, `03_UI_SPEC.md`, `07_UI_V2.md` (+ open `mockups/main-window.html`), `04_EXCEL_FORMAT.md`. Where 03 and 07 differ, **07 wins**. A starter solution is in `src/` — extend it, don't restart it.
+You are implementing **ParamBridge**, a Revit 2025/2026 add-in. Read, in order: `01_FEATURE_SPEC.md`, `02_ARCHITECTURE.md`, `03_UI_SPEC.md`, `07_UI_V2.md` (+ open `mockups/main-window.html`), `04_EXCEL_FORMAT.md`, `08_VALUE_RULES.md`. Where 03 and 07 differ, **07 wins**. A starter solution is in `src/` — extend it, don't restart it.
 
 ## Hard rules
 1. **Original work only.** Do not copy, decompile, or paraphrase code, XAML, icons, Excel templates or UI text from DiRoots or any other commercial add-in. Implement from the specs and the public Revit API documentation.
@@ -28,7 +28,7 @@ You are implementing **ParamBridge**, a Revit 2025/2026 add-in. Read, in order: 
 - Accept: side-by-side with the mockup the structure and colours match; switching Revit to dark theme switches the window; 800 parameters scroll smoothly.
 
 ### M2 — Export to Excel
-- `ValueReader`, `WorkbookWriter` per 04 (mapping row, UniqueId column, styles, header notes, `_meta`, `Instructions`, dropdowns for Yes/No and Level/Phase/Material, protection).
+- `ValueReader`/`ValueWriter`/`RevitNames` per **08_VALUE_RULES** (names not ids, enum labels, display units), `WorkbookWriter` per 04 (mapping row, UniqueId column, styles, header notes, `_meta`, `Instructions`, dropdowns for Yes/No and Level/Phase/Material, protection).
 - Export options dialog per 01 §5.1. Progress window with cancel.
 - Accept: export 2 categories → 2 sheets + Instructions; hidden row/col present; numbers are numeric in display units; read-only cells locked.
 

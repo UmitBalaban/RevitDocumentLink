@@ -38,14 +38,25 @@ public static class ValueWriter
                               || text.Equals("Evet", StringComparison.OrdinalIgnoreCase) || text.Equals("True", StringComparison.OrdinalIgnoreCase);
                     ok = p.Set(yes ? 1 : 0);
                 }
-                else ok = p.Set(Convert.ToInt32(Number(value, text, culture)));
+                else if ((p.Definition as InternalDefinition)?.BuiltInParameter == BuiltInParameter.ELEM_PARTITION_PARAM)
+                    ok = p.Set(RevitNames.ResolveWorkset(doc, text));
+                else if (dataType == SpecTypeId.Int.Integer || value is double or long)
+                    ok = p.Set(Convert.ToInt32(Number(value, text, culture)));
+                else
+                    ok = p.SetValueString(text); // enum label, e.g. "Finish Face: Exterior"
                 break;
 
             case StorageType.Double:
                 if (string.IsNullOrWhiteSpace(text)) throw new InvalidOperationException("Empty value skipped for numeric parameter.");
+                var measurable = dataType is not null && !dataType.Empty() && UnitUtils.IsMeasurableSpec(dataType);
+                if (value is not double && measurable && UnitFormatUtils.TryParse(doc.GetUnits(), dataType!, text, out double parsedInternal))
+                {
+                    ok = p.Set(parsedInternal); // text with unit suffix, e.g. "1250 mm"
+                    break;
+                }
                 var d = Number(value, text, culture);
-                if (dataType is not null && !dataType.Empty() && UnitUtils.IsMeasurableSpec(dataType))
-                    d = UnitUtils.ConvertToInternalUnits(d, doc.GetUnits().GetFormatOptions(dataType).GetUnitTypeId());
+                if (measurable)
+                    d = UnitUtils.ConvertToInternalUnits(d, doc.GetUnits().GetFormatOptions(dataType!).GetUnitTypeId());
                 ok = p.Set(d);
                 break;
 
@@ -71,22 +82,7 @@ public static class ValueWriter
         e.ChangeTypeId(target.Id);
     }
 
-    private static ElementId ResolveId(Document doc, Parameter p, string name)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return ElementId.InvalidElementId;
-        var current = doc.GetElement(p.AsElementId());
-
-        IEnumerable<Element> pool = current is not null
-            ? new FilteredElementCollector(doc).OfClass(current.GetType())
-            : p.Definition is InternalDefinition { BuiltInParameter: BuiltInParameter.PHASE_CREATED or BuiltInParameter.PHASE_DEMOLISHED }
-                ? doc.Phases.Cast<Element>()
-                : new FilteredElementCollector(doc).OfClass(typeof(Level));
-        // TODO(M3): Material parameters with empty current value → OfClass(typeof(Material)).
-
-        var match = pool.FirstOrDefault(x => x.Name == name)
-            ?? throw new InvalidOperationException($"'{name}' is not a valid value. Choose one from the dropdown list.");
-        return match.Id;
-    }
+    private static ElementId ResolveId(Document doc, Parameter p, string name) => RevitNames.Resolve(doc, p, name);
 
     private static string Text(object? v, CultureInfo c) => v switch
     {

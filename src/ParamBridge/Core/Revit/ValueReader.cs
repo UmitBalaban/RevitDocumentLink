@@ -67,18 +67,28 @@ public static class ValueReader
         return (ToExcel(p, e.Document), kind);
     }
 
-    /// <summary>Converts a parameter value to string / double / long / null in display units.</summary>
+    /// <summary>
+    /// Converts a parameter value to what the Properties palette shows (docs/08_VALUE_RULES.md):
+    /// names instead of ids, labels instead of enum integers, numbers in project display units.
+    /// </summary>
     public static object? ToExcel(Parameter p, Document doc)
     {
-        if (!p.HasValue) return null;
+        if (!p.HasValue && p.StorageType != StorageType.ElementId) return null;
         var dataType = p.Definition.GetDataType();
+        var bip = (p.Definition as InternalDefinition)?.BuiltInParameter ?? BuiltInParameter.INVALID;
         switch (p.StorageType)
         {
             case StorageType.String:
-                return p.AsString() ?? "";
+                return (p.AsString() ?? "").Replace("\r\n", "\n");
+
             case StorageType.Integer:
                 if (dataType == SpecTypeId.Boolean.YesNo) return p.AsInteger() == 1 ? "Yes" : "No";
-                return (long)p.AsInteger();
+                if (bip == BuiltInParameter.ELEM_PARTITION_PARAM) return RevitNames.Workset(doc, p.AsInteger());
+                if (dataType == SpecTypeId.Int.Integer) return (long)p.AsInteger();
+                // enum-like integers (Location Line, Function, Shape…): export the label Revit shows
+                var label = p.AsValueString();
+                return string.IsNullOrEmpty(label) ? p.AsInteger() : label;
+
             case StorageType.Double:
                 var raw = p.AsDouble();
                 if (dataType is not null && !dataType.Empty() && UnitUtils.IsMeasurableSpec(dataType))
@@ -87,10 +97,10 @@ public static class ValueReader
                     return UnitUtils.ConvertFromInternalUnits(raw, unit);
                 }
                 return raw;
+
             case StorageType.ElementId:
-                var id = p.AsElementId();
-                if (id == ElementId.InvalidElementId) return "";
-                return doc.GetElement(id)?.Name ?? p.AsValueString() ?? "";
+                return RevitNames.Of(doc, p.AsElementId(), p);
+
             default:
                 return p.AsValueString();
         }
@@ -104,11 +114,14 @@ public static class ValueReader
             var info = sheet.Columns[c];
             if (info.DataType.Contains("Yes/No", StringComparison.OrdinalIgnoreCase))
                 sheet.Lists[c] = new() { "Yes", "No" };
-            else if (info.Key.Id is "LEVEL_PARAM" or "FAMILY_LEVEL_PARAM" or "SCHEDULE_LEVEL_PARAM")
-                sheet.Lists[c] = new FilteredElementCollector(doc).OfClass(typeof(Level)).Select(l => l.Name).OrderBy(n => n).ToList();
+            else if (Enum.TryParse<BuiltInParameter>(info.Key.Id, out var bip) && RevitNames.IsLevelParam(bip))
+                sheet.Lists[c] = new FilteredElementCollector(doc).OfClass(typeof(Level)).Cast<Level>()
+                    .OrderBy(l => l.Elevation).Select(l => l.Name).ToList();
+            else if (info.Key.Id == "ELEM_PARTITION_PARAM" && doc.IsWorkshared)
+                sheet.Lists[c] = new FilteredWorksetCollector(doc).OfKind(WorksetKind.UserWorkset).Select(w => w.Name).OrderBy(n => n).ToList();
             else if (info.Key.Id is "PHASE_CREATED" or "PHASE_DEMOLISHED")
                 sheet.Lists[c] = doc.Phases.Cast<Phase>().Select(p => p.Name).ToList();
-            // TODO(M2): Material, key schedules, family types per family (TYPE column).
+            // TODO(M2): Material, enum labels, Family: Type lists, key schedules — build from RevitNames.Candidates on a sample element.
         }
     }
 

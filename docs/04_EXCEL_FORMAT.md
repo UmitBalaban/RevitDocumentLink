@@ -22,6 +22,8 @@ row 3+  <uniqueid>        123456       Ducts      …        …        value   
 - **A1** = literal `##PB` marker. **Column A** hidden = `Element.UniqueId`. **Row 1** hidden = *parameter keys*.
 - Fixed columns B–E: `ID` (Element Id), `CAT`, `FAM`, `TYPE` — keys `I|PB:ID`, `I|PB:CAT`, `I|PB:FAM`, `I|PB:TYPE` (PB = pseudo, not real Revit parameters). Only `I|PB:TYPE` is editable (changes type, see 01 §6.3).
 - Parameter key grammar: `<I|T>|<BIP:<BuiltInParameter name> | SHR:<guid> | NAM:<name> | SCH:<schedule field index>>`
+- Header text = two lines `Name [unit]` / `Kind · Data type · Group` (08 §4).
+- Values follow `08_VALUE_RULES.md` (names, labels, display units — no ids except the Element Id column).
 - Freeze panes at B3; autofilter on row 2; column widths auto-fit (cap 60).
 
 ## 3. Cell kinds & styling (our palette — same colours as the UI, see 07 §2)

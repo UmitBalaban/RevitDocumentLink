@@ -16,5 +16,6 @@ Revit 2025/2026 add-in (C# 12, .NET 8, WPF) that round-trips model data to Excel
 - Revit 2025 API: `ElementId.Value` (long), `ForgeTypeId` units, no `IntegerValue`, no `DisplayUnitType`.
 - UI follows `docs/07_UI_V2.md` and `docs/mockups/main-window.html` (colours = its CSS variables, light + dark). No third-party UI control libraries.
 - The user wants to be consulted on design decisions: when the spec leaves a visible UI choice open, ask before building it.
+- **Values must be exported the way Revit's Properties palette shows them** — level/phase/material/workset/type *names*, enum *labels*, numbers in project display units — never ids or internal units. `docs/08_VALUE_RULES.md` is binding; extend its table for any parameter type it doesn't cover instead of guessing.
 - Revit must be closed for the deploy copy to succeed; if a build fails with "file in use", rebuild with `-p:DeployToRevit=false` and tell the user.
 - You cannot click inside Revit yourself: after each milestone, give the user a short numbered manual test list and ask for the result and the log.
