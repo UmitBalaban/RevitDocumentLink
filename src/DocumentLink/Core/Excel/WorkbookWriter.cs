@@ -8,7 +8,7 @@ namespace DocumentLink.Core.Excel;
 public sealed class WorkbookOptions
 {
     public bool IncludeInstructions { get; init; } = true;
-    public bool ProtectReadOnly { get; init; } = true;
+    public bool ProtectReadOnly { get; init; } = false;
     public bool ReplaceExistingSheets { get; init; } = true;
     public string DocumentTitle { get; init; } = "";
     public string DocumentGuid { get; init; } = "";
@@ -49,7 +49,7 @@ public static class WorkbookWriter
             }
             var name = SafeSheetName(sheet.Name, used);
             var ws = wb.Worksheets.Add(name);
-            WriteSheet(ws, sheet, lists, ref listCol);
+            WriteSheet(ws, sheet, lists, ref listCol, options.ProtectReadOnly);
             M($"sheet:{name}:keys", KeysHash(sheet.Columns.Select(c => c.Key.ToString())));
         }
 
@@ -58,7 +58,7 @@ public static class WorkbookWriter
         wb.SaveAs(path);
     }
 
-    private static void WriteSheet(IXLWorksheet ws, SheetData sheet, IXLWorksheet lists, ref int listCol)
+    private static void WriteSheet(IXLWorksheet ws, SheetData sheet, IXLWorksheet lists, ref int listCol, bool protect)
     {
         int nCols = sheet.Columns.Count;
         int lastCol = FirstParamCol + nCols - 1;
@@ -118,6 +118,7 @@ public static class WorkbookWriter
         ws.Range(HeaderRow, FirstParamCol, lastRow, lastCol).SetAutoFilter();
         ws.Columns(FirstParamCol, lastCol).AdjustToContents(HeaderRow, Math.Min(lastRow, 500), 8, 60);
 
+        if (!protect) return;
         // structural rows/cols stay locked; data cells decided per kind in Style()
         var prot = ws.Protect();
         prot.AllowElement(XLSheetProtectionElements.SelectEverything);
@@ -134,7 +135,8 @@ public static class WorkbookWriter
             case double d: cell.Value = d; break;
             case long l: cell.Value = (double)l; cell.Style.NumberFormat.Format = "0"; break;
             case int i: cell.Value = (double)i; cell.Style.NumberFormat.Format = "0"; break;
-            default: cell.Value = v.ToString(); break;
+            // names are always text, even when they look like numbers (a level called "10.43")
+            default: cell.Value = v.ToString(); cell.Style.NumberFormat.Format = "@"; break;
         }
     }
 

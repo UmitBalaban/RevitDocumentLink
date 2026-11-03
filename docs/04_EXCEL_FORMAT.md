@@ -22,7 +22,10 @@ row 3+  <uniqueid>        123456       Ducts      …        …        value   
 - **A1** = literal `##DL` marker. **Column A** hidden = `Element.UniqueId`. **Row 1** hidden = *parameter keys*.
 - Fixed columns B–E: `ID` (Element Id), `CAT`, `FAM`, `TYPE` — keys `I|DL:ID`, `I|DL:CAT`, `I|DL:FAM`, `I|DL:TYPE` (DL = pseudo, not real Revit parameters). Only `I|DL:TYPE` is editable (changes type, see 01 §6.3).
 - Parameter key grammar: `<I|T>|<BIP:<BuiltInParameter name> | SHR:<guid> | NAM:<name> | SCH:<schedule field index>>`
-- Header text = two lines `Name [unit]` / `Kind · Data type · Group` (08 §4).
+- Header text = **four lines** (line breaks, wrap on, row height auto): `Name [unit]` / storage type (`String`, `Double`, `Integer`, `ElementId`) / kind (`Instance`, `Type`) / parameter group (`Identity Data`, `Dimensions`…). Fixed columns use `Custom Parameter` on line 2.
+- **Duplicate parameter names** in one sheet are normal (instance Workset + type Workset; two different shared params both called "Insulation Thickness"). Line 3 (kind) separates instance/type; if two columns still look identical, append the origin to line 1: `Insulation Thickness (Shared)` / `(Project)`. Import never relies on the header text — only on the hidden key row.
+- Dropdown lists: each distinct value list written once to `_lists` and exposed as a workbook-scoped named range `DL_List<n>`; columns with the same list (e.g. instance Workset and another workset column) share it.
+- Fixed `Element Id` column: light grey `#F2F2F2` (read-only, but visually lighter than read-only red so it reads as a key column).
 - Values follow `08_VALUE_RULES.md` (names, labels, display units — no ids except the Element Id column).
 - Freeze panes at B3; autofilter on row 2; column widths auto-fit (cap 60).
 
@@ -32,7 +35,7 @@ row 3+  <uniqueid>        123456       Ducts      …        …        value   
 | Editable instance value | **none** | normal | no |
 | Editable type value | yellow `#FFE8A3` | normal | no |
 | Read-only value (Family, Family and Type, type's Workset, calculated, reporting…) | red `#F7C1C1` | `#5A1F1D` | yes |
-| Parameter does not exist for this element | dark grey `#A9ADB3`, empty | – | yes |
+| Parameter does not exist for this element | dark grey `#BFBFBF`, empty | – | yes |
 | Linked-model element row | red `#F7C1C1` whole row | `#5A1F1D` | yes |
 | Header row | accent `#0F7B6C` | bold white | yes |
 

@@ -10,11 +10,13 @@ namespace DocumentLink.Core.Revit;
 public static class RevitNames
 {
     public const string ByCategory = "<By Category>";
+    /// <summary>Revit shows "None" for an empty reference (Phase Demolished, Design Option, Image…).</summary>
+    public const string None = "None";
 
     public static string Of(Document doc, ElementId id, Parameter? p = null)
     {
         if (id == ElementId.InvalidElementId)
-            return p is not null && IsMaterial(p) ? ByCategory : "";
+            return p is not null && IsMaterial(p) ? ByCategory : None;
 
         if (id.Id() < 0)
         {
@@ -54,7 +56,7 @@ public static class RevitNames
     public static ElementId Resolve(Document doc, Parameter p, string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return ElementId.InvalidElementId;
-        if (IsMaterial(p) && name == ByCategory) return ElementId.InvalidElementId;
+        if (name == None || (IsMaterial(p) && name == ByCategory)) return ElementId.InvalidElementId;
 
         var candidates = Candidates(doc, p).Where(e => Of(doc, e.Id, p) == name || e.Name == name).ToList();
         return candidates.Count switch

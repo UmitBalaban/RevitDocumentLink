@@ -19,7 +19,8 @@ public static class WorkbookFormat
     public static readonly XLColor TypeFill = XLColor.FromHtml("#FFE8A3");     // editable type value
     public static readonly XLColor ReadOnlyFill = XLColor.FromHtml("#F7C1C1"); // read-only (family/type names, calculated…)
     public static readonly XLColor ReadOnlyFont = XLColor.FromHtml("#5A1F1D");
-    public static readonly XLColor MissingFill = XLColor.FromHtml("#A9ADB3");  // parameter does not exist for this element
+    public static readonly XLColor MissingFill = XLColor.FromHtml("#BFBFBF");  // parameter does not exist for this element
+    public static readonly XLColor IdFill = XLColor.FromHtml("#F2F2F2");       // fixed Element Id column
 
     public static string KeysHash(IEnumerable<string> keys)
     {

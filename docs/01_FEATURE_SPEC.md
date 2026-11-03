@@ -59,7 +59,7 @@ Two lists side by side: **Available parameters** ⇄ **Selected parameters** (ad
 - If target file exists and already contains worksheets with the same names: ask **Replace sheets / Keep both (rename) / Cancel**.
 - Checkbox **Open file after export** and **Open folder after export**.
 - Checkbox **Include Instructions sheet** (default on).
-- Checkbox **Protect read-only cells** (lock read-only & missing cells, sheet protection without password; default on).
+- Checkbox **Protect read-only cells** (lock read-only & missing cells, sheet protection without password; **default off** — the reference workflow leaves sheets unprotected so users can sort/filter/format freely; tamper detection still protects the mapping).
 - Units: export values in **project display units** (default) with numbers stored as numbers (not text) and the unit symbol shown only in the header, e.g. `Length [mm]`.
 
 ### 5.2 What gets written

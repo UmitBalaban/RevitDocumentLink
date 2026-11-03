@@ -33,6 +33,17 @@ The user should never have to ask for this. When a parameter type isn't covered 
 
 Pseudo columns: `Element Id` = the integer id (this one IS an id, by design), `Category` = category name, `Family` = family name, `Type` = type name (editable → changes type), optional `Family and Type` = `Family: Type`.
 
+## 1b. Lessons from a reference export (BTS-CVH … M3, Air Terminals + Ducts, Nov 2026)
+Confirmed behaviour to match:
+- Enum integers as labels: Export to IFC = `By Type`, Export Type to IFC = `Default`, Horizontal/Vertical Justification = `Center` / `Middle`.
+- Plain integers stay numbers (e.g. Section = `2`).
+- Empty references show **`None`** (Phase Demolished, Design Option, Image, Type Image, Duct Style). Import `None` → `InvalidElementId`. Material keeps `<By Category>`.
+- Instance Workset = workset name (`Main Workset`); the **type's** Workset is read-only and shows the type workset name (`Duct Types`, `Family : Air Terminals : <family>`).
+- `Family and Type` = `Family: Type`, `Family` and `Type` as names, `Category` as name — all read-only.
+- `Type Id` is an id by nature → number, read-only. It is the only id column besides Element Id.
+- Measured values are plain numbers in display units (Flow 1000, Area 0.679 m²), no text units in cells.
+- **Names that look like numbers stay text**: a level named `10.43` must be written as text `10.43`, not the number 10.43 — otherwise Excel reformats it ("10,43") and the import lookup fails. Every name/label/text cell uses number format `@`.
+
 ## 2. Number formatting & culture
 - Numbers are written as real numbers; Excel shows them in the user's locale. We never write numbers as text.
 - Rounding only through `NumberFormat` (display) using the project's accuracy for that spec, e.g. accuracy 1 mm → `0`, 0.01 m² → `0.00`.
